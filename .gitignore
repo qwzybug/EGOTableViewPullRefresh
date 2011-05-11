@@ -1,0 +1,6 @@
+*.xcuserdatad
+xcuserdata
+.DS_Store
+build
+*.pbxuser
+*.mode*
