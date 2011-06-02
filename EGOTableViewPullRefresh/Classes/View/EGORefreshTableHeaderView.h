@@ -49,6 +49,13 @@ typedef enum{
 
 @property(nonatomic,assign) id <EGORefreshTableHeaderDelegate> delegate;
 
+@property (nonatomic, readonly) UILabel *lastUpdatedLabel;
+@property (nonatomic, readonly) UILabel *statusLabel;
+@property (nonatomic, readonly) CALayer *arrowImageLayer;
+@property (nonatomic, readonly) UIActivityIndicatorView *activityView;
+
+@property (nonatomic, assign) CGFloat refreshHeaderHeight;
+
 - (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor;
 
 - (void)refreshLastUpdatedDate;

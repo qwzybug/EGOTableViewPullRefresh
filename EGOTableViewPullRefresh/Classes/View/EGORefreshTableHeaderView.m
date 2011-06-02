@@ -29,6 +29,7 @@
 
 #define TEXT_COLOR	 [UIColor colorWithRed:87.0/255.0 green:108.0/255.0 blue:137.0/255.0 alpha:1.0]
 #define FLIP_ANIMATION_DURATION 0.18f
+#define DEFAULT_HEIGHT 60.0
 
 
 @interface EGORefreshTableHeaderView (Private)
@@ -39,6 +40,12 @@
 
 @synthesize delegate=_delegate;
 
+@synthesize lastUpdatedLabel=_lastUpdatedLabel;
+@synthesize statusLabel=_statusLabel;
+@synthesize arrowImageLayer=_arrowImage;
+@synthesize activityView=_activityView;
+
+@synthesize refreshHeaderHeight;
 
 - (id)initWithFrame:(CGRect)frame arrowImageName:(NSString *)arrow textColor:(UIColor *)textColor  {
     if((self = [super initWithFrame:frame])) {
@@ -71,7 +78,7 @@
 		[label release];
 		
 		CALayer *layer = [CALayer layer];
-		layer.frame = CGRectMake(25.0f, frame.size.height - 65.0f, 30.0f, 55.0f);
+		layer.frame = CGRectMake(25.0f, frame.size.height - (DEFAULT_HEIGHT + 5), 30.0f, 55.0f);
 		layer.contentsGravity = kCAGravityResizeAspect;
 		layer.contents = (id)[UIImage imageNamed:arrow].CGImage;
 		
@@ -90,6 +97,7 @@
 		_activityView = view;
 		[view release];
 		
+        self.refreshHeaderHeight = DEFAULT_HEIGHT;
 		
 		[self setState:EGOOPullRefreshNormal];
 		
@@ -187,7 +195,7 @@
 	if (_state == EGOOPullRefreshLoading) {
 		
 		CGFloat offset = MAX(scrollView.contentOffset.y * -1, 0);
-		offset = MIN(offset, 60);
+		offset = MIN(offset, self.refreshHeaderHeight);
 		scrollView.contentInset = UIEdgeInsetsMake(offset, 0.0f, 0.0f, 0.0f);
 		
 	} else if (scrollView.isDragging) {
@@ -197,9 +205,9 @@
 			_loading = [_delegate egoRefreshTableHeaderDataSourceIsLoading:self];
 		}
 		
-		if (_state == EGOOPullRefreshPulling && scrollView.contentOffset.y > -65.0f && scrollView.contentOffset.y < 0.0f && !_loading) {
+		if (_state == EGOOPullRefreshPulling && scrollView.contentOffset.y > -(self.refreshHeaderHeight + 5) && scrollView.contentOffset.y < 0.0f && !_loading) {
 			[self setState:EGOOPullRefreshNormal];
-		} else if (_state == EGOOPullRefreshNormal && scrollView.contentOffset.y < -65.0f && !_loading) {
+		} else if (_state == EGOOPullRefreshNormal && scrollView.contentOffset.y < -(self.refreshHeaderHeight + 5) && !_loading) {
 			[self setState:EGOOPullRefreshPulling];
 		}
 		
@@ -218,7 +226,7 @@
 		_loading = [_delegate egoRefreshTableHeaderDataSourceIsLoading:self];
 	}
 	
-	if (scrollView.contentOffset.y <= - 65.0f && !_loading) {
+	if (scrollView.contentOffset.y <= -(self.refreshHeaderHeight + 5) && !_loading) {
 		
 		if ([_delegate respondsToSelector:@selector(egoRefreshTableHeaderDidTriggerRefresh:)]) {
 			[_delegate egoRefreshTableHeaderDidTriggerRefresh:self];
@@ -227,7 +235,7 @@
 		[self setState:EGOOPullRefreshLoading];
 		[UIView beginAnimations:nil context:NULL];
 		[UIView setAnimationDuration:0.2];
-		scrollView.contentInset = UIEdgeInsetsMake(60.0f, 0.0f, 0.0f, 0.0f);
+		scrollView.contentInset = UIEdgeInsetsMake(self.refreshHeaderHeight, 0.0f, 0.0f, 0.0f);
 		[UIView commitAnimations];
 		
 	}
